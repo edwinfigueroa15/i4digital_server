@@ -13,6 +13,18 @@ class RecordController {
         }
     }
 
+    async getId(req: Request, res: Response) {
+        const { id } = req.params
+        try {
+            const response: IRecord | null = await Record.findOne({ where: { id } });
+            if(!response) res.status(400).json({ msg: 'El registro no existe', type: 'error', data: [] })
+            res.status(200).json({ msg: 'Registro encontrado', type: 'success', data: response })
+        
+        } catch (error) {
+            res.status(500).json({ msg: `Error de proceso: ${error}`, type: 'warning', data: [] })
+        }
+    }
+
     async add(req: Request, res: Response){
         const { body } = req
         try {
@@ -41,6 +53,21 @@ class RecordController {
             await Record.destroy({ where: { id } })
             res.status(200).json({ msg: 'Registro eliminado permanentemente', type: 'success', data: { id } })
     
+        } catch (error) {
+            res.status(500).json({ msg: `Error de proceso: ${error}`, type: 'warning', data: [] })
+        }
+    }
+
+    async exportRecords(req: Request, res: Response) {
+        const { id } = req.params
+        try {
+            const response: IRecord | null = await Record.findOne({ where: { id } });
+            if(!response) res.status(400).json({ msg: 'El registro no existe', type: 'error', data: [] })
+
+            const dataArray = JSON.parse(response!.returned_data)
+
+            res.status(200).json({ msg: 'Registros en Base64', type: 'success', data: [] })
+        
         } catch (error) {
             res.status(500).json({ msg: `Error de proceso: ${error}`, type: 'warning', data: [] })
         }
