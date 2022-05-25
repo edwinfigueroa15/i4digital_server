@@ -5,13 +5,16 @@ import { config } from 'dotenv'
 config({ path: "./.env" })
 
 import sequelize from './config/db'
-import * as routes from './routes'
+import './models'
+import routes from './routes'
 
 class App {
     private app: Application
     private host: string
     private port: string
-    private apiPaths = {}
+    private apiPaths = {
+        record: '/api/record',
+    }
     
     constructor() {
         this.app = express()
@@ -33,6 +36,11 @@ class App {
         sequelize.authenticate()
             .then(() => console.log('Connection to database has been established successfully'))
             .catch(error => console.log('Unable to connect to the database: '+error))
+
+        // MIGRAMOS LOS DATOS DE LOS MODELOS A LA BASE DE DATOS PARA CREAR LAS TABLAS (iMPORTANTE TOCA IMPORTAR LOS MODELOS PRIMERO)
+        sequelize.sync()
+            .then(() => console.log('Migrations completed'))
+            .catch(error => console.log('Failed to migrate database: ', error))
     }
 
     middlewares(){
@@ -48,7 +56,7 @@ class App {
     }
 
     routes() {
-        console.log('Routes')
+        this.app.use(this.apiPaths.record, routes.RecordRoute)
     }
 }
 
