@@ -1,17 +1,16 @@
 import { Model, DataTypes } from 'sequelize'
 import sequelize from '../config/db'
+import Petition from './Petition';
 
 export interface IRecord {
-    id: string;
-    date: Date;
-    method: string;
+    id?: string;
+    id_petition: string;
     returned_data: string;
 }
 
 class Record extends Model<IRecord> implements IRecord {
     declare id: string;
-    declare date: Date;
-    declare method: string;
+    declare id_petition: string;
     declare returned_data: string;
     declare readonly createdAt: Date;
 	declare readonly updatedAt: Date;
@@ -24,12 +23,8 @@ Record.init({
         primaryKey: true,
         allowNull: false
     },
-    date: {
-        type: DataTypes.DATE,
-        allowNull: false
-    },
-    method: {
-        type: DataTypes.STRING(10),
+    id_petition: {
+        type: DataTypes.UUID,
         allowNull: false
     },
     returned_data: {
@@ -41,5 +36,8 @@ Record.init({
 		sequelize
 	}
 )
+
+Petition.hasOne(Record, { foreignKey: 'id_petition', onDelete: 'cascade' })
+Record.belongsTo(Petition, { foreignKey: 'id_petition', onDelete: 'cascade' })
 
 export default Record;
